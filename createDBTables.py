@@ -2,6 +2,30 @@
 import psycopg2
 from config import config
 
+def delete_table_values(tables):
+    """ create tables in the PostgreSQL database"""
+    conn = None
+    try:
+        # read connection parameters
+        params = config()
+        # connect to the PostgreSQL server
+        print('Connecting to the PostgreSQL database...')
+        conn = psycopg2.connect(**params)
+        # create a cursor
+        cur = conn.cursor()
+        for value in tables:
+            query = 'DELETE FROM '+str(value)+';'
+            cur.execute(query)
+        # close communication with the PostgreSQL database server
+        cur.close()
+        # commit the changes
+        conn.commit()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+            print('Database connection closed.')
 
 def create_tables(tables):
     """ create tables in the PostgreSQL database"""
@@ -9,16 +33,13 @@ def create_tables(tables):
     try:
         # read connection parameters
         params = config()
-
         # connect to the PostgreSQL server
         print('Connecting to the PostgreSQL database...')
         conn = psycopg2.connect(**params)
-
         # create a cursor
         cur = conn.cursor()
         for value in tables:
             cur.execute(value)
-
         # close communication with the PostgreSQL database server
         cur.close()
         # commit the changes
@@ -42,7 +63,10 @@ if __name__ == '__main__':
         'CREATE TABLE IF NOT EXISTS STATUS (ID VARCHAR, StatusSetting VARCHAR);',
         'CREATE TABLE IF NOT EXISTS PATTERNS (ID VARCHAR, Multipliers VARCHAR);',
         'CREATE TABLE IF NOT EXISTS CURVES (ID VARCHAR, XValue FLOAT, YValue FLOAT);',
-        'CREATE TABLE IF NOT EXISTS ENERGY (value VARCHAR);',
+        'CREATE TABLE IF NOT EXISTS ENERGY (field VARCHAR, value VARCHAR);',
+        'CREATE TABLE IF NOT EXISTS TIMES (field VARCHAR, value VARCHAR);',
+        'CREATE TABLE IF NOT EXISTS REPORT (field VARCHAR, value VARCHAR);',
+        'CREATE TABLE IF NOT EXISTS OPTIONS (field VARCHAR, value VARCHAR);',
         'CREATE TABLE IF NOT EXISTS EMITTERS (Junction VARCHAR, Coefficient FLOAT);',
         'CREATE TABLE IF NOT EXISTS QUALITY (Node VARCHAR, InitQual FLOAT);',
         'CREATE TABLE IF NOT EXISTS SOURCES (Node VARCHAR, Type VARCHAR, Quality FLOAT, Pattern VARCHAR);',
@@ -51,4 +75,16 @@ if __name__ == '__main__':
         'CREATE TABLE IF NOT EXISTS COORDINATES (Node VARCHAR, XCoord FLOAT, YCoord FLOAT);',
         'CREATE TABLE IF NOT EXISTS VERTICES (Link VARCHAR, XCoord FLOAT, YCoord FLOAT);',
         'CREATE TABLE IF NOT EXISTS LABELS (XCoord FLOAT, YCoord FLOAT, Label VARCHAR, Anchor VARCHAR);']
+    epanet_keywords = ['JUNCTIONS', 'RESERVOIRS', 'TANKS', 'PIPES', 'PUMPS', 'VALVES',
+                       'EMITTERS',
+                       'CURVES', 'PATTERNS', 'ENERGY', 'STATUS', 'DEMANDS',
+                       'QUALITY', 'REACTIONS', 'SOURCES', 'MIXING',
+                       'OPTIONS', 'TIMES', 'REPORT',
+                       'COORDINATES', 'VERTICES', 'LABELS']
+    # TABLES TO Create
+    # 'CONTROLS',
+    # 'RULES',
+    # 'BACKDROP',
+    # 'TAGS'
     create_tables(tables)
+    delete_table_values(epanet_keywords)

@@ -25,15 +25,15 @@ fields = {'JUNCTIONS': ['ID', 'Elev', 'Demand', 'Pattern'],
           'CURVES': ['ID', 'XValue', 'YValue'],
           'CONTROLS': ['----'],
           'RULES': ['value'],
-          'ENERGY': ['value'],
+          'ENERGY': ['field', 'value'],
           'EMITTERS': ['Junction', 'Coefficient'],
           'QUALITY': ['Node', 'InitQual'],
           'SOURCES': ['Node', 'Type', 'Quality', 'Pattern'],
           'REACTIONS': ['Type', 'Coefficient'],
           'MIXING': ['Tank', 'Model', 'Volume'],
-          'TIMES': ['value'],
-          'REPORT': ['value'],
-          'OPTIONS': ['value'],
+          'TIMES': ['field', 'value'],
+          'REPORT': ['field', 'value'],
+          'OPTIONS': ['field', 'value'],
           'COORDINATES': ['Node', 'XCoord', 'YCoord'],
           'VERTICES': ['Link', 'XCoord', 'YCoord'],
           'LABELS': ['XCoord', 'YCoord', 'Label', 'Anchor'],
@@ -65,7 +65,7 @@ for line in initial_input_file:
 
 def addtodata(ids, uneditedmeasurements, placetosave, category):
     if len(uneditedmeasurements) > 1:
-        if category == 'CURVES' or category == 'REACTIONS':
+        if category == 'CURVES' or category == 'REACTIONS' or category == 'ENERGY' or category == 'TIMES' or category == 'REPORT' or category =='OPTIONS':
             for details in uneditedmeasurements:
                 if details[0] != '[' and details[0] != ';':
                     result = [x.strip() for x in details.split('\t')]
@@ -77,21 +77,6 @@ def addtodata(ids, uneditedmeasurements, placetosave, category):
                         except:
                             data[textid] = ''
                     placetosave.append(data)
-        elif category == 'ENERGY' or category == 'TIMES' or category == 'REPORT' or category =='OPTIONS':
-            #try:
-            #    uneditedmeasurements.pop(0)
-            #except:
-            #    pass
-            for details in uneditedmeasurements:
-                if details[0] != '[' and details[0] != ';':
-                    result = [x.strip() for x in details.split('\t')]
-                    data = {}
-                    try:
-                        data[result[0]] = result[1]
-                    except:
-                        pass
-                    placetosave.append(data)
-            print(placetosave)
         elif category == 'BACKDROP':
             try:
                 uneditedmeasurements.pop(0)
@@ -263,7 +248,10 @@ addDataToDatabase("DEMANDS", ["Junction", "Demand", "Pattern", "Category"], inp_
 addDataToDatabase("STATUS", ["ID", "StatusSetting"], inp_status)
 addDataToDatabase("PATTERNS", ["ID", "Multipliers"], inp_patterns)
 addDataToDatabase("CURVES", ["ID", "XValue", "YValue"], inp_curves)
-addDataToDatabase("ENERGY", ["value"], inp_energy)
+addDataToDatabase("ENERGY", ["field", "value"], inp_energy)
+addDataToDatabase("TIMES", ["field", "value"], inp_times)
+addDataToDatabase("REPORT", ["field", "value"], inp_report)
+addDataToDatabase("OPTIONS", ["field", "value"], inp_options)
 addDataToDatabase("EMITTERS", ["Junction", "Coefficient"], inp_emitters)
 addDataToDatabase("SOURCES", ["Node", "Type", "Quality", "Pattern"], inp_sources)
 addDataToDatabase("REACTIONS", ["Type", "Coefficient"], inp_reactions)
