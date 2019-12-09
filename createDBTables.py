@@ -85,7 +85,6 @@ if __name__ == '__main__':
                        'QUALITY', 'REACTIONS', 'SOURCES', 'MIXING',
                        'OPTIONS', 'TIMES', 'REPORT',
                        'COORDINATES', 'VERTICES', 'LABELS', 'CONTROLS', 'RULES', 'BACKDROP', 'TAGS']
-    # TABLES TO Create
-    # 'TAGS'
+
     create_tables(tables)
     delete_table_values(epanet_keywords)
