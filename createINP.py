@@ -45,22 +45,22 @@ json_file = open('Water_bin.json')
 EpanetOutput = json.load(json_file)
 '''
 
-# Step 2 - Open initial input file
-initial_input_file = open('Virtual_City_WaterNetwork.inp')
 
-# Step 3 - Read Input file and split it to lists
-finalresult = []
-currentresult = []
-RecordingMode = False
-for line in initial_input_file:
-    if line.strip() in epanet_keywords:
-        if len(currentresult) != 0:
-            finalresult.append(currentresult)
-        currentresult = []
-        currentresult.append(line.strip())
-    else:
-        if len(line.strip()) != 0:
+def readinputfile(initial_input_filename):
+    initial_input_file = open(initial_input_filename)
+    finalresult = []
+    currentresult = []
+    RecordingMode = False
+    for line in initial_input_file:
+        if line.strip() in epanet_keywords:
+            if len(currentresult) != 0:
+                finalresult.append(currentresult)
+            currentresult = []
             currentresult.append(line.strip())
+        else:
+            if len(line.strip()) != 0:
+                currentresult.append(line.strip())
+    return finalresult
 
 
 def addtodata(ids, uneditedmeasurements, placetosave, category):
@@ -131,138 +131,144 @@ def addtodata(ids, uneditedmeasurements, placetosave, category):
                     placetosave.append(data)
 
 
-inp_title = []
-inp_junctions = []
-inp_reservoirs = []
-inp_tanks = []
-inp_pipes = []
-inp_pumps = []
-inp_valves = []
-inp_tags = []
-inp_demands = []
-inp_status = []
-inp_patterns = []
-inp_curves = []
-inp_controls = []
-inp_rules = []
-inp_energy = []
-inp_emitters = []
-inp_quality = []
-inp_sources = []
-inp_reactions = []
-inp_mixing = []
-inp_times = []
-inp_report = []
-inp_options = []
-inp_coordinates = []
-inp_vertices = []
-inp_labels = []
-inp_backdrop = []
+def addinfotolists(finalresult):
+    fullinputs = {}
+    inp_title = []
+    inp_junctions = []
+    inp_reservoirs = []
+    inp_tanks = []
+    inp_pipes = []
+    inp_pumps = []
+    inp_valves = []
+    inp_tags = []
+    inp_demands = []
+    inp_status = []
+    inp_patterns = []
+    inp_curves = []
+    inp_controls = []
+    inp_rules = []
+    inp_energy = []
+    inp_emitters = []
+    inp_quality = []
+    inp_sources = []
+    inp_reactions = []
+    inp_mixing = []
+    inp_times = []
+    inp_report = []
+    inp_options = []
+    inp_coordinates = []
+    inp_vertices = []
+    inp_labels = []
+    inp_backdrop = []
 
-for val in finalresult:
-    if val[0] == '[TITLE]':
-        data = {}
-        data["title"] = val[1]
-        inp_title.append(data)
-    elif val[0] == '[JUNCTIONS]':
-        addtodata(fields['JUNCTIONS'], val, inp_junctions, 'JUNCTIONS')
-    elif val[0] == '[RESERVOIRS]':
-        addtodata(fields['RESERVOIRS'], val, inp_reservoirs, 'RESERVOIRS')
-    elif val[0] == '[TANKS]':
-        addtodata(fields['TANKS'], val, inp_tanks, 'TANKS')
-    elif val[0] == '[PIPES]':
-        addtodata(fields['PIPES'], val, inp_pipes, 'PIPES')
-    elif val[0] == '[PUMPS]':
-        addtodata(fields['PUMPS'], val, inp_pumps, 'PUMPS')
-    elif val[0] == '[VALVES]':
-        addtodata(fields['VALVES'], val, inp_valves, 'VALVES')
-    elif val[0] == '[TAGS]':
-        addtodata(fields['TAGS'], val, inp_tags, 'TAGS')
-    elif val[0] == '[DEMANDS]':
-        addtodata(fields['DEMANDS'], val, inp_demands, 'DEMANDS')
-    elif val[0] == '[STATUS]':
-        addtodata(fields['STATUS'], val, inp_status, 'STATUS')
-    elif val[0] == '[PATTERNS]':
-        addtodata(fields['PATTERNS'], val, inp_patterns, 'PATTERNS')
-    elif val[0] == '[CURVES]':
-        addtodata(fields['CURVES'], val, inp_curves, 'CURVES')
-    elif val[0] == '[CONTROLS]':
-        addtodata(fields['CONTROLS'], val, inp_controls, 'CONTROLS')
-    elif val[0] == '[RULES]':
-        addtodata(fields['RULES'], val, inp_rules, 'RULES')
-    elif val[0] == '[ENERGY]':
-        addtodata(fields['ENERGY'], val, inp_energy, 'ENERGY')
-    elif val[0] == '[EMITTERS]':
-        addtodata(fields['EMITTERS'], val, inp_emitters, 'EMITTERS')
-    elif val[0] == '[QUALITY]':
-        addtodata(fields['QUALITY'], val, inp_quality, 'QUALITY')
-    elif val[0] == '[SOURCES]':
-        addtodata(fields['SOURCES'], val, inp_sources, 'SOURCES')
-    elif val[0] == '[REACTIONS]':
-        addtodata(fields['REACTIONS'], val, inp_reactions, 'REACTIONS')
-    elif val[0] == '[MIXING]':
-        addtodata(fields['MIXING'], val, inp_mixing, 'MIXING')
-    elif val[0] == '[TIMES]':
-        addtodata(fields['TIMES'], val, inp_times, 'TIMES')
-    elif val[0] == '[REPORT]':
-        addtodata(fields['REPORT'], val, inp_report, 'REPORT')
-    elif val[0] == '[OPTIONS]':
-        addtodata(fields['OPTIONS'], val, inp_options, 'OPTIONS')
-    elif val[0] == '[COORDINATES]':
-        addtodata(fields['COORDINATES'], val, inp_coordinates, 'COORDINATES')
-    elif val[0] == '[VERTICES]':
-        addtodata(fields['VERTICES'], val, inp_vertices, 'VERTICES')
-    elif val[0] == '[LABELS]':
-        addtodata(fields['LABELS'], val, inp_labels, 'LABELS')
-    elif val[0] == '[BACKDROP]':
-        addtodata(fields['BACKDROP'], val, inp_backdrop, 'BACKDROP')
+    for val in finalresult:
+        if val[0] == '[TITLE]':
+            data = {}
+            data["title"] = val[1]
+            inp_title.append(data)
+            fullinputs['TITLE'] = val[1]
+        elif val[0] == '[JUNCTIONS]':
+            addtodata(fields['JUNCTIONS'], val, inp_junctions, 'JUNCTIONS')
+            fullinputs['JUNCTIONS'] = inp_junctions
+        elif val[0] == '[RESERVOIRS]':
+            addtodata(fields['RESERVOIRS'], val, inp_reservoirs, 'RESERVOIRS')
+            fullinputs['RESERVOIRS'] = inp_reservoirs
+        elif val[0] == '[TANKS]':
+            addtodata(fields['TANKS'], val, inp_tanks, 'TANKS')
+            fullinputs['TANKS'] = inp_tanks
+        elif val[0] == '[PIPES]':
+            addtodata(fields['PIPES'], val, inp_pipes, 'PIPES')
+            fullinputs['PIPES'] = inp_pipes
+        elif val[0] == '[PUMPS]':
+            addtodata(fields['PUMPS'], val, inp_pumps, 'PUMPS')
+            fullinputs['PUMPS'] = inp_pumps
+        elif val[0] == '[VALVES]':
+            addtodata(fields['VALVES'], val, inp_valves, 'VALVES')
+            fullinputs['VALVES'] = inp_valves
+        elif val[0] == '[TAGS]':
+            addtodata(fields['TAGS'], val, inp_tags, 'TAGS')
+            fullinputs['TAGS'] = inp_tags
+        elif val[0] == '[DEMANDS]':
+            addtodata(fields['DEMANDS'], val, inp_demands, 'DEMANDS')
+            fullinputs['DEMANDS'] = inp_demands
+        elif val[0] == '[STATUS]':
+            addtodata(fields['STATUS'], val, inp_status, 'STATUS')
+            fullinputs['STATUS'] = inp_status
+        elif val[0] == '[PATTERNS]':
+            addtodata(fields['PATTERNS'], val, inp_patterns, 'PATTERNS')
+            fullinputs['PATTERNS'] = inp_patterns
+        elif val[0] == '[CURVES]':
+            addtodata(fields['CURVES'], val, inp_curves, 'CURVES')
+            fullinputs['CURVES'] = inp_curves
+        elif val[0] == '[CONTROLS]':
+            addtodata(fields['CONTROLS'], val, inp_controls, 'CONTROLS')
+            fullinputs['CONTROLS'] = inp_controls
+        elif val[0] == '[RULES]':
+            addtodata(fields['RULES'], val, inp_rules, 'RULES')
+            fullinputs['RULES'] = inp_rules
+        elif val[0] == '[ENERGY]':
+            addtodata(fields['ENERGY'], val, inp_energy, 'ENERGY')
+            fullinputs['ENERGY'] = inp_energy
+        elif val[0] == '[EMITTERS]':
+            addtodata(fields['EMITTERS'], val, inp_emitters, 'EMITTERS')
+            fullinputs['EMITTERS'] = inp_emitters
+        elif val[0] == '[QUALITY]':
+            addtodata(fields['QUALITY'], val, inp_quality, 'QUALITY')
+            fullinputs['QUALITY'] = inp_quality
+        elif val[0] == '[SOURCES]':
+            addtodata(fields['SOURCES'], val, inp_sources, 'SOURCES')
+            fullinputs['SOURCES'] = inp_sources
+        elif val[0] == '[REACTIONS]':
+            addtodata(fields['REACTIONS'], val, inp_reactions, 'REACTIONS')
+            fullinputs['REACTIONS'] = inp_reactions
+        elif val[0] == '[MIXING]':
+            addtodata(fields['MIXING'], val, inp_mixing, 'MIXING')
+            fullinputs['MIXING'] = inp_mixing
+        elif val[0] == '[TIMES]':
+            addtodata(fields['TIMES'], val, inp_times, 'TIMES')
+            fullinputs['TIMES'] = inp_times
+        elif val[0] == '[REPORT]':
+            addtodata(fields['REPORT'], val, inp_report, 'REPORT')
+            fullinputs['REPORT'] = inp_report
+        elif val[0] == '[OPTIONS]':
+            addtodata(fields['OPTIONS'], val, inp_options, 'OPTIONS')
+            fullinputs['OPTIONS'] = inp_options
+        elif val[0] == '[COORDINATES]':
+            addtodata(fields['COORDINATES'], val, inp_coordinates, 'COORDINATES')
+            fullinputs['COORDINATES'] = inp_coordinates
+        elif val[0] == '[VERTICES]':
+            addtodata(fields['VERTICES'], val, inp_vertices, 'VERTICES')
+            fullinputs['VERTICES'] = inp_vertices
+        elif val[0] == '[LABELS]':
+            addtodata(fields['LABELS'], val, inp_labels, 'LABELS')
+            fullinputs['LABELS'] = inp_labels
+        elif val[0] == '[BACKDROP]':
+            addtodata(fields['BACKDROP'], val, inp_backdrop, 'BACKDROP')
+            fullinputs['BACKDROP'] = inp_backdrop
 
-def addDataToDatabase(tablename, tablefields, fieldsdata):
+    return fullinputs
+
+
+def addDataToDatabase(allfields, fieldsdic):
     # Add information to database
     conn = None
     params = config()
     conn = psycopg2.connect(**params)
     cur = conn.cursor()
-    for value in fieldsdata:
-        final_query = "INSERT INTO "+str(tablename)+"("+','.join(map(str, tablefields))+") VALUES ("
-        empty_fields=[]
-        for x in range(0,len(tablefields)):
-            empty_fields.append('%s')
-        final_query = final_query + ','.join(map(str, empty_fields)) + ");"
-        data = tuple(value.values())
-        cur.execute(final_query, data)
+    for val in allfields:
+        for value in fieldsdic[val]:
+            final_query = "INSERT INTO " + str(val) + "(" + ','.join(map(str, allfields[val])) + ") VALUES ("
+            empty_fields = []
+            for x in range(0, len(allfields[val])):
+                empty_fields.append('%s')
+            final_query = final_query + ','.join(map(str, empty_fields)) + ");"
+            data = tuple(value.values())
+            cur.execute(final_query, data)
     # close communication with the PostgreSQL database server
     cur.close()
     # commit the changes
     conn.commit()
 
-addDataToDatabase("JUNCTIONS", ["ID", "Elev", "Demand", "Pattern"], inp_junctions)
-addDataToDatabase("RESERVOIRS", ["ID", "Head", "Pattern"], inp_reservoirs)
-addDataToDatabase("TANKS", ["ID", "Elevation", "InitLevel", "MinLevel", "MaxLevel", "Diameter", "MinVol", "VolCurve"], inp_tanks)
-addDataToDatabase("PIPES", ["ID", "Node1", "Node2", "Length", "Diameter", "Roughness", "MinorLoss", "Status"], inp_pipes)
-addDataToDatabase("JUNCTIONS", ["ID", "Elev", "Demand", "Pattern"], inp_junctions)
-addDataToDatabase("PUMPS", ["ID", "Node1", "Node2", "Parameters"], inp_pumps)
-addDataToDatabase("VALVES", ["ID", "Node1", "Node2", "Diameter", "Type", "Setting", "MinorLoss"], inp_valves)
-addDataToDatabase("DEMANDS", ["Junction", "Demand", "Pattern", "Category"], inp_demands)
-addDataToDatabase("STATUS", ["ID", "StatusSetting"], inp_status)
-addDataToDatabase("PATTERNS", ["ID", "Multipliers"], inp_patterns)
-addDataToDatabase("CURVES", ["ID", "XValue", "YValue"], inp_curves)
-addDataToDatabase("CONTROLS", ["control"], inp_controls)
-addDataToDatabase("RULES", ["ruleID", "Rule"], inp_rules)
-addDataToDatabase("ENERGY", ["field", "value"], inp_energy)
-addDataToDatabase("TIMES", ["field", "value"], inp_times)
-addDataToDatabase("REPORT", ["field", "value"], inp_report)
-addDataToDatabase("OPTIONS", ["field", "value"], inp_options)
-addDataToDatabase("EMITTERS", ["Junction", "Coefficient"], inp_emitters)
-addDataToDatabase("QUALITY", ["Node", "InitQual"], inp_quality)
-addDataToDatabase("SOURCES", ["Node", "Type", "Quality", "Pattern"], inp_sources)
-addDataToDatabase("REACTIONS", ["Type", "Coefficient"], inp_reactions)
-addDataToDatabase("MIXING", ["Tank", "Model", "Volume"], inp_mixing)
-addDataToDatabase("COORDINATES", ["Node", "XCoord", "YCoord"], inp_coordinates)
-addDataToDatabase("VERTICES", ["Link", "XCoord", "YCoord"], inp_vertices)
-addDataToDatabase("LABELS", ["XCoord", "YCoord", "Label", "Anchor"], inp_labels)
-addDataToDatabase("BACKDROP", ["field", "value"], inp_backdrop)
-addDataToDatabase("TAGS", ["Object", "ID", "Tag"], inp_tags)
 
 def writeTheTitles(file,title):
     file.write("\n")
@@ -337,39 +343,70 @@ def writeTheValuesUnderTitlesNoFields(file, infovariable,title):
             pass
 
 
-def newinputfilecreation(filename):
+def newinputfilecreation(filename,datadic):
     f = open(filename, "w+")
     f.write("[TITLE]" + "\n")
-    f.write(inp_title[0]['title'] + "\n")
-    writeTheValuesUnderTitles(f, inp_junctions, "[JUNCTIONS]")
-    writeTheValuesUnderTitles(f, inp_reservoirs, "[RESERVOIRS]")
-    writeTheValuesUnderTitles(f, inp_tanks, "[TANKS]")
-    writeTheValuesUnderTitles(f, inp_pipes, "[PIPES]")
-    writeTheValuesUnderTitles(f, inp_pumps, "[PUMPS]")
-    writeTheValuesUnderTitles(f, inp_valves, "[VALVES]")
-    writeTheValuesUnderTitles(f, inp_tags, "[TAGS]")
-    writeTheValuesUnderTitles(f, inp_demands, "[DEMANDS]")
-    writeTheValuesUnderTitles(f, inp_status, "[STATUS]")
-    writeTheValuesUnderTitles(f, inp_patterns, "[PATTERNS]")
-    writeTheValuesUnderTitles(f, inp_curves, "[CURVES]")
-    writeTheValuesUnderTitles(f, inp_controls, "[CONTROLS]")
-    writeTheValuesUnderTitles(f, inp_rules, "[RULES]")
-    writeTheValuesUnderTitlesNoFields(f, inp_energy, "[ENERGY]")
-    writeTheValuesUnderTitles(f, inp_emitters, "[EMITTERS]")
-    writeTheValuesUnderTitles(f, inp_quality, "[QUALITY]")
-    writeTheValuesUnderTitles(f, inp_sources, "[SOURCES]")
-    writeTheValuesUnderTitlesNoFields(f, inp_reactions, "[REACTIONS]")
-    writeTheValuesUnderTitles(f, inp_mixing, "[MIXING]")
-    writeTheValuesUnderTitlesNoFields(f, inp_times, "[TIMES]")
-    writeTheValuesUnderTitlesNoFields(f, inp_report, "[REPORT]")
-    writeTheValuesUnderTitlesNoFields(f, inp_options, "[OPTIONS]")
-    writeTheValuesUnderTitles(f, inp_coordinates, "[COORDINATES]")
-    writeTheValuesUnderTitles(f, inp_vertices, "[VERTICES]")
-    writeTheValuesUnderTitles(f, inp_labels, "[LABELS]")
-    writeTheValuesUnderTitlesNoFields(f, inp_backdrop, "[BACKDROP]")
+    f.write(datadic['TITLE'] + "\n")
+    writeTheValuesUnderTitles(f, datadic['JUNCTIONS'], "[JUNCTIONS]")
+    writeTheValuesUnderTitles(f, datadic['RESERVOIRS'], "[RESERVOIRS]")
+    writeTheValuesUnderTitles(f, datadic['TANKS'], "[TANKS]")
+    writeTheValuesUnderTitles(f, datadic['PIPES'], "[PIPES]")
+    writeTheValuesUnderTitles(f, datadic['PUMPS'], "[PUMPS]")
+    writeTheValuesUnderTitles(f, datadic['VALVES'], "[VALVES]")
+    writeTheValuesUnderTitles(f, datadic['TAGS'], "[TAGS]")
+    writeTheValuesUnderTitles(f, datadic['DEMANDS'], "[DEMANDS]")
+    writeTheValuesUnderTitles(f, datadic['STATUS'], "[STATUS]")
+    writeTheValuesUnderTitles(f, datadic['PATTERNS'], "[PATTERNS]")
+    writeTheValuesUnderTitles(f, datadic['CURVES'], "[CURVES]")
+    writeTheValuesUnderTitles(f, datadic['CONTROLS'], "[CONTROLS]")
+    writeTheValuesUnderTitles(f, datadic['RULES'], "[RULES]")
+    writeTheValuesUnderTitlesNoFields(f, datadic['ENERGY'], "[ENERGY]")
+    writeTheValuesUnderTitles(f, datadic['EMITTERS'], "[EMITTERS]")
+    writeTheValuesUnderTitles(f, datadic['QUALITY'], "[QUALITY]")
+    writeTheValuesUnderTitles(f, datadic['SOURCES'], "[SOURCES]")
+    writeTheValuesUnderTitlesNoFields(f, datadic['REACTIONS'], "[REACTIONS]")
+    writeTheValuesUnderTitles(f, datadic['MIXING'], "[MIXING]")
+    writeTheValuesUnderTitlesNoFields(f, datadic['TIMES'], "[TIMES]")
+    writeTheValuesUnderTitlesNoFields(f, datadic['REPORT'], "[REPORT]")
+    writeTheValuesUnderTitlesNoFields(f, datadic['OPTIONS'], "[OPTIONS]")
+    writeTheValuesUnderTitles(f, datadic['COORDINATES'], "[COORDINATES]")
+    writeTheValuesUnderTitles(f, datadic['VERTICES'], "[VERTICES]")
+    writeTheValuesUnderTitles(f, datadic['LABELS'], "[LABELS]")
+    writeTheValuesUnderTitlesNoFields(f, datadic['BACKDROP'], "[BACKDROP]")
     f.write("\n")
     f.write("[END]" + "\n")
     f.close()
 
 
-newinputfilecreation('newepanetinput.inp')
+if __name__ == '__main__':
+    finalresult = readinputfile('Virtual_City_WaterNetwork.inp')
+    fullinputs = addinfotolists(finalresult)
+
+    allfields = {'JUNCTIONS': ["ID", "Elev", "Demand", "Pattern"],
+                 "RESERVOIRS": ["ID", "Head", "Pattern"],
+                 "TANKS": ["ID", "Elevation", "InitLevel", "MinLevel", "MaxLevel", "Diameter", "MinVol", "VolCurve"],
+                 "PIPES": ["ID", "Node1", "Node2", "Length", "Diameter", "Roughness", "MinorLoss", "Status"],
+                 "PUMPS": ["ID", "Node1", "Node2", "Parameters"],
+                 "VALVES": ["ID", "Node1", "Node2", "Diameter", "Type", "Setting", "MinorLoss"],
+                 "DEMANDS": ["Junction", "Demand", "Pattern", "Category"],
+                 "STATUS": ["ID", "StatusSetting"],
+                 "PATTERNS": ["ID", "Multipliers"],
+                 "CURVES": ["ID", "XValue", "YValue"],
+                 "CONTROLS": ["control"],
+                 "RULES": ["ruleID", "Rule"],
+                 "ENERGY": ["field", "value"],
+                 "TIMES": ["field", "value"],
+                 "REPORT": ["field", "value"],
+                 "OPTIONS": ["field", "value"],
+                 "EMITTERS": ["Junction", "Coefficient"],
+                 "QUALITY": ["Node", "InitQual"],
+                 "SOURCES": ["Node", "Type", "Quality", "Pattern"],
+                 "REACTIONS": ["Type", "Coefficient"],
+                 "MIXING": ["Tank", "Model", "Volume"],
+                 "COORDINATES": ["Node", "XCoord", "YCoord"],
+                 "VERTICES": ["Link", "XCoord", "YCoord"],
+                 "LABELS": ["XCoord", "YCoord", "Label", "Anchor"],
+                 "BACKDROP": ["field", "value"],
+                 "TAGS": ["Object", "ID", "Tag"]}
+    addDataToDatabase(allfields, fullinputs)
+    newinputfilecreation('newepanetinput.inp', fullinputs)
