@@ -74,17 +74,18 @@ if __name__ == '__main__':
         'CREATE TABLE IF NOT EXISTS MIXING (Tank VARCHAR, Model VARCHAR, Volume FLOAT);',
         'CREATE TABLE IF NOT EXISTS COORDINATES (Node VARCHAR, XCoord FLOAT, YCoord FLOAT);',
         'CREATE TABLE IF NOT EXISTS VERTICES (Link VARCHAR, XCoord FLOAT, YCoord FLOAT);',
-        'CREATE TABLE IF NOT EXISTS LABELS (XCoord FLOAT, YCoord FLOAT, Label VARCHAR, Anchor VARCHAR);']
+        'CREATE TABLE IF NOT EXISTS LABELS (XCoord FLOAT, YCoord FLOAT, Label VARCHAR, Anchor VARCHAR);',
+        'CREATE TABLE IF NOT EXISTS CONTROLS (control VARCHAR);',
+        'CREATE TABLE IF NOT EXISTS RULES (ruleID VARCHAR, Rule VARCHAR);',
+        'CREATE TABLE IF NOT EXISTS BACKDROP (field VARCHAR, value VARCHAR);',
+        'CREATE TABLE IF NOT EXISTS TAGS (Object VARCHAR, ID VARCHAR, Tag VARCHAR);']
     epanet_keywords = ['JUNCTIONS', 'RESERVOIRS', 'TANKS', 'PIPES', 'PUMPS', 'VALVES',
                        'EMITTERS',
                        'CURVES', 'PATTERNS', 'ENERGY', 'STATUS', 'DEMANDS',
                        'QUALITY', 'REACTIONS', 'SOURCES', 'MIXING',
                        'OPTIONS', 'TIMES', 'REPORT',
-                       'COORDINATES', 'VERTICES', 'LABELS']
+                       'COORDINATES', 'VERTICES', 'LABELS', 'CONTROLS', 'RULES', 'BACKDROP', 'TAGS']
     # TABLES TO Create
-    # 'CONTROLS',
-    # 'RULES',
-    # 'BACKDROP',
     # 'TAGS'
     create_tables(tables)
     delete_table_values(epanet_keywords)

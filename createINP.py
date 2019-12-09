@@ -39,12 +39,6 @@ fields = {'JUNCTIONS': ['ID', 'Elev', 'Demand', 'Pattern'],
           'LABELS': ['XCoord', 'YCoord', 'Label', 'Anchor'],
           'BACKDROP': ['field', 'value']}
 
-'''
-# Step 1 - Open output JSON file
-json_file = open('Water_bin.json')
-EpanetOutput = json.load(json_file)
-'''
-
 
 def readinputfile(initial_input_filename):
     initial_input_file = open(initial_input_filename)
