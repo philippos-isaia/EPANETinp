@@ -1,5 +1,5 @@
-import json
 #!/usr/bin/python
+import json
 import psycopg2
 from config import config
 
@@ -24,7 +24,7 @@ fields = {'JUNCTIONS': ['ID', 'Elev', 'Demand', 'Pattern'],
           'PATTERNS': ['ID', 'Multipliers'],
           'CURVES': ['ID', 'XValue', 'YValue'],
           'CONTROLS': ['----'],
-          'RULES': ['value'],
+          'RULES': ['ruleID', 'Rule'],
           'ENERGY': ['field', 'value'],
           'EMITTERS': ['Junction', 'Coefficient'],
           'QUALITY': ['Node', 'InitQual'],
@@ -37,13 +37,13 @@ fields = {'JUNCTIONS': ['ID', 'Elev', 'Demand', 'Pattern'],
           'COORDINATES': ['Node', 'XCoord', 'YCoord'],
           'VERTICES': ['Link', 'XCoord', 'YCoord'],
           'LABELS': ['XCoord', 'YCoord', 'Label', 'Anchor'],
-          'BACKDROP': ['DIMENSIONS', 'UNITS', 'FILE', 'OFFSET']}
+          'BACKDROP': ['field', 'value']}
 
-# TODO Work on CONTROLS, RULES, ENERGY, REACTIONS, TIMES, REPORT, OPTIONS, LABELS, BACKDROP
-
+'''
 # Step 1 - Open output JSON file
 json_file = open('Water_bin.json')
 EpanetOutput = json.load(json_file)
+'''
 
 # Step 2 - Open initial input file
 initial_input_file = open('Virtual_City_WaterNetwork.inp')
@@ -77,59 +77,58 @@ def addtodata(ids, uneditedmeasurements, placetosave, category):
                         except:
                             data[textid] = ''
                     placetosave.append(data)
-        elif category == 'BACKDROP':
-            try:
-                uneditedmeasurements.pop(0)
-            except:
-                pass
+        elif category == 'PATTERNS' or category == 'BACKDROP':
             for details in uneditedmeasurements:
-                result = [x.strip() for x in details.split('\t')]
-                data = {}
+                if details[0] != '[' and details[0] != ';':
+                    result = [x.strip() for x in details.split('\t')]
+                    data = {}
+                    try:
+                        data[ids[0]] = result[0]
+                    except:
+                        pass
+                    try:
+                        data[ids[1]] = ','.join(result[1:])
+                    except:
+                        pass
+                    placetosave.append(data)
+        elif category == 'RULES':
+            data=[]
+            placetosave1=[]
+            for details in uneditedmeasurements:
+                if details[0] != '[' and details[0] != ';':
+                    if 'RULE' in details:
+                        if data:
+                            placetosave1.append(data)
+                        data=[]
+                        data.append(details.strip())
+                    else:
+                        data.append(details.strip())
+            if data:
+                placetosave1.append(data)
+            for value in placetosave1:
+                data={}
                 try:
-                    data[result[0]] = '\t\t'.join(result[1:])
+                    data[ids[0]] = value[0]
                 except:
                     pass
-                placetosave.append(data)
-        elif category == 'PATTERNS':
-            try:
-                uneditedmeasurements.pop(1)
-            except:
-                pass
-            try:
-                uneditedmeasurements.pop(0)
-            except:
-                pass
-            for details in uneditedmeasurements:
-                result = [x.strip() for x in details.split('\t')]
-                data = {}
                 try:
-                    data[ids[0]] = result[0]
-                except:
-                    pass
-                try:
-                    data[ids[1]] = '\t\t'.join(result[1:])
+                    data[ids[1]] = ' \n '.join(value[1:])
                 except:
                     pass
                 placetosave.append(data)
         else:
-            try:
-                uneditedmeasurements.pop(1)
-            except:
-                pass
-            try:
-                uneditedmeasurements.pop(0)
-            except:
-                pass
             for details in uneditedmeasurements:
-                result = [x.strip() for x in details.split('\t')]
-                data = {}
-                for x in range(0, len(ids)):
-                    textid = ids[x]
-                    try:
-                        data[textid] = result[x]
-                    except:
-                        data[textid] = ''
-                placetosave.append(data)
+                if details[0] != '[' and details[0] != ';':
+                    result = [x.strip() for x in details.split('\t')]
+                    result = list(filter(None, result))
+                    data = {}
+                    for x in range(0, len(ids)):
+                        textid = ids[x]
+                        try:
+                            data[textid] = result[x]
+                        except:
+                            data[textid] = ''
+                    placetosave.append(data)
 
 
 inp_title = []
@@ -248,17 +247,22 @@ addDataToDatabase("DEMANDS", ["Junction", "Demand", "Pattern", "Category"], inp_
 addDataToDatabase("STATUS", ["ID", "StatusSetting"], inp_status)
 addDataToDatabase("PATTERNS", ["ID", "Multipliers"], inp_patterns)
 addDataToDatabase("CURVES", ["ID", "XValue", "YValue"], inp_curves)
+addDataToDatabase("CONTROLS", ["control"], inp_controls)
+addDataToDatabase("RULES", ["ruleID", "Rule"], inp_rules)
 addDataToDatabase("ENERGY", ["field", "value"], inp_energy)
 addDataToDatabase("TIMES", ["field", "value"], inp_times)
 addDataToDatabase("REPORT", ["field", "value"], inp_report)
 addDataToDatabase("OPTIONS", ["field", "value"], inp_options)
 addDataToDatabase("EMITTERS", ["Junction", "Coefficient"], inp_emitters)
+addDataToDatabase("QUALITY", ["Node", "InitQual"], inp_quality)
 addDataToDatabase("SOURCES", ["Node", "Type", "Quality", "Pattern"], inp_sources)
 addDataToDatabase("REACTIONS", ["Type", "Coefficient"], inp_reactions)
 addDataToDatabase("MIXING", ["Tank", "Model", "Volume"], inp_mixing)
 addDataToDatabase("COORDINATES", ["Node", "XCoord", "YCoord"], inp_coordinates)
 addDataToDatabase("VERTICES", ["Link", "XCoord", "YCoord"], inp_vertices)
 addDataToDatabase("LABELS", ["XCoord", "YCoord", "Label", "Anchor"], inp_labels)
+addDataToDatabase("BACKDROP", ["field", "value"], inp_backdrop)
+addDataToDatabase("TAGS", ["Object", "ID", "Tag"], inp_tags)
 
 def writeTheTitles(file,title):
     file.write("\n")
@@ -267,37 +271,77 @@ def writeTheTitles(file,title):
 
 
 def writeTheValuesUnderTitles(file,infovariable,title):
-    writeTheTitles(file,title)
-    try:
-        for value in infovariable[0].keys():
-            file.write(value + "\t\t\t\t")
-        file.write("\n")
-    except:
-        pass
-    try:
-        for entries in infovariable:
-            for value in entries.values():
+    if title == '[PATTERNS]':
+        writeTheTitles(file, title)
+        try:
+            for value in infovariable[0].keys():
                 file.write(value + "\t\t\t\t")
             file.write("\n")
-    except:
-        pass
+        except:
+            pass
+        try:
+            for entries in infovariable:
+                for value in entries.values():
+                    if ',' in value:
+                        value = value.replace(",", "\t\t")
+                    file.write(value + "\t\t")
+                file.write("\n")
+        except:
+            pass
+    elif title == '[RULES]':
+        writeTheTitles(file, title)
+        try:
+            file.write("\n")
+            for entries in infovariable:
+                for value in entries.values():
+                    file.write(value + "\n")
+                file.write("\n")
+        except:
+            pass
+    else:
+        writeTheTitles(file,title)
+        try:
+            for value in infovariable[0].keys():
+                file.write(value + "\t\t\t\t")
+            file.write("\n")
+        except:
+            pass
+        try:
+            for entries in infovariable:
+                for value in entries.values():
+                    file.write(value + "\t\t\t\t")
+                file.write("\n")
+        except:
+            pass
 
 
 def writeTheValuesUnderTitlesNoFields(file, infovariable,title):
     writeTheTitles(file,title)
-    try:
-        for it in infovariable:
-            for k, v in it.items():
-                file.write(k + '\t' + v + '\n')
-    except:
-        pass
+    if title == '[ENERGY]' or title == '[REACTIONS]' or title == '[TIMES]' or title == '[REPORT]' or title == '[OPTIONS]' or title == '[BACKDROP]':
+        file.write('\n')
+        try:
+            for entries in infovariable:
+                for value in entries.values():
+                    if title == '[BACKDROP]':
+                        value = value.replace(",", "\t\t")
+                    file.write(value + '\t')
+                file.write("\n")
+        except:
+            pass
+    else:
+        try:
+            for it in infovariable:
+                for k, v in it.items():
+                    file.write(k + '\t' + v + '\n')
+        except:
+            pass
 
 
 def newinputfilecreation(filename):
     f = open(filename, "w+")
     f.write("[TITLE]" + "\n")
     f.write(inp_title[0]['title'] + "\n")
-    writeTheValuesUnderTitles(f,inp_junctions, "[JUNCTIONS]")
+    writeTheValuesUnderTitles(f, inp_junctions, "[JUNCTIONS]")
     writeTheValuesUnderTitles(f, inp_reservoirs, "[RESERVOIRS]")
     writeTheValuesUnderTitles(f, inp_tanks, "[TANKS]")
     writeTheValuesUnderTitles(f, inp_pipes, "[PIPES]")
